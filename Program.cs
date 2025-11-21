@@ -27,6 +27,7 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = false
     };
 });
+
 // Added
 
 builder.Services.AddControllers()

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SimpleAnki.Data;
@@ -7,6 +8,7 @@ namespace SimpleAnki.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class CardsController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -15,7 +17,22 @@ public class CardsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var cards = await _db.Cards.Include(c => c.Deck).ToListAsync();
+        var userId = Guid.Parse(User.FindFirst("id")!.Value);
+
+        var cards = await _db.Cards
+            .Include(c => c.Deck)
+            .Where(c => c.Deck != null && c.Deck.UserId == userId)
+            .Select(c => new CardDto
+            {
+                Id = c.Id,
+                Front = c.Front,
+                Back = c.Back,
+                Order = c.Order,
+                DeckId = c.DeckId,
+                DeckTitle = c.Deck!.Title
+            })
+            .ToListAsync();
+
         return Ok(cards);
     }
 

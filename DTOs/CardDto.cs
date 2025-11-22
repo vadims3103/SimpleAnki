@@ -1,3 +1,4 @@
+namespace SimpleAnki.DTOs;
 public class CardDto
 {
     public Guid Id { get; set; }
@@ -6,4 +7,6 @@ public class CardDto
     public int Order { get; set; }
     public Guid DeckId { get; set; }
     public required string DeckTitle { get; set; }
+
+    public List<ExampleDto> Examples { get; set; } = new();
 }

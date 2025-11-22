@@ -1,4 +1,4 @@
-namespace SimpleAnki.Models.Requests;
+namespace SimpleAnki.Requests;
 
 public class RegisterRequest
 {

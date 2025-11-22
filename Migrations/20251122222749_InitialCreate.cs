@@ -65,6 +65,25 @@ namespace SimpleAnki.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Example",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CardId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Text = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Example", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Example_Cards_CardId",
+                        column: x => x.CardId,
+                        principalTable: "Cards",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Cards_DeckId",
                 table: "Cards",
@@ -74,11 +93,19 @@ namespace SimpleAnki.Migrations
                 name: "IX_Decks_UserId",
                 table: "Decks",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Example_CardId",
+                table: "Example",
+                column: "CardId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Example");
+
             migrationBuilder.DropTable(
                 name: "Cards");
 

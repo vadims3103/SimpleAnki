@@ -1,4 +1,4 @@
-using SimpleAnki.Models.Requests;
+using SimpleAnki.Requests;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using SimpleAnki.Data;

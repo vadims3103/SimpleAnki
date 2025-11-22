@@ -37,7 +37,7 @@ builder.Services.AddControllers()
     });
 
 // Add services
-builder.Services.AddControllers();
+// builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(c =>

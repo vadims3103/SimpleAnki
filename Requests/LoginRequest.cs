@@ -1,4 +1,4 @@
-namespace SimpleAnki.Models
+namespace SimpleAnki.Requests
 {
     public class LoginRequest
     {

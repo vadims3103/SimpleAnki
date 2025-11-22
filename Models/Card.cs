@@ -22,5 +22,7 @@ namespace SimpleAnki.Models
         public required string Back {get; set;}
 
         public int Order {get; set;} = 0;
+
+        public List<Example> Examples {get; set;} = new();
     }
 }

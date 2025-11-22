@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SimpleAnki.Data;
 using SimpleAnki.Models;
+using SimpleAnki.DTOs;
+using SimpleAnki.Requests;
 
 namespace SimpleAnki.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize] // Require authentication for all endpoints
+[Authorize]
 public class DecksController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -19,10 +21,19 @@ public class DecksController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var userId = Guid.Parse(User.FindFirst("id")!.Value);
+        
         var decks = await _db.Decks
-            .Where(d => d.UserId == userId)
             .Include(d => d.Cards)
+            .Where(d => d.UserId == userId)
+            .Select(d => new DeckDto
+            {
+                Id = d.Id,
+                Title = d.Title,
+                Description = d.Description,
+                CardsCount = d.Cards.Count
+            })
             .ToListAsync();
+
         return Ok(decks);
     }
 
@@ -31,38 +42,58 @@ public class DecksController : ControllerBase
     public async Task<IActionResult> Get(Guid id)
     {
         var userId = Guid.Parse(User.FindFirst("id")!.Value);
+        
         var deck = await _db.Decks
             .Include(d => d.Cards)
-            .FirstOrDefaultAsync(d => d.Id == id && d.UserId == userId);
+            .Where(d => d.UserId == userId && d.Id == id)
+            .Select(d => new DeckDto
+            {
+                Id = d.Id,
+                Title = d.Title,
+                Description = d.Description,
+                CardsCount = d.Cards.Count
+            })
+            .FirstOrDefaultAsync();
 
         return deck == null ? NotFound() : Ok(deck);
     }
 
     // POST /api/decks
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Deck deck)
+    public async Task<IActionResult> Create([FromBody] CreateDeckRequest request)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var userId = Guid.Parse(User.FindFirst("id")!.Value);
-        deck.Id = Guid.NewGuid();
-        deck.UserId = userId; // associate deck with current user
+
+        var deck = new Deck
+        {
+            Id = Guid.NewGuid(),
+            Title = request.Title,
+            Description = request.Description,
+            UserId = userId
+        };
+
         _db.Decks.Add(deck);
         await _db.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(Get), new { id = deck.Id }, deck);
+        return CreatedAtAction(nameof(Get), new { id = deck.Id }, new { deck.Id });
     }
 
     // PUT /api/decks/{id}
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] Deck input)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateDeckRequest request)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
         var userId = Guid.Parse(User.FindFirst("id")!.Value);
+
         var deck = await _db.Decks.FirstOrDefaultAsync(d => d.Id == id && d.UserId == userId);
         if (deck == null) return NotFound();
 
-        deck.Title = input.Title;
-        deck.Description = input.Description;
+        deck.Title = request.Title;
+        deck.Description = request.Description;
+
         await _db.SaveChangesAsync();
         return NoContent();
     }
@@ -72,7 +103,10 @@ public class DecksController : ControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         var userId = Guid.Parse(User.FindFirst("id")!.Value);
-        var deck = await _db.Decks.FirstOrDefaultAsync(d => d.Id == id && d.UserId == userId);
+
+        var deck = await _db.Decks.Include(d => d.Cards)
+            .FirstOrDefaultAsync(d => d.Id == id && d.UserId == userId);
+
         if (deck == null) return NotFound();
 
         _db.Decks.Remove(deck);

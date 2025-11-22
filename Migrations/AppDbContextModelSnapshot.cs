@@ -68,6 +68,26 @@ namespace SimpleAnki.Migrations
                     b.ToTable("Decks");
                 });
 
+            modelBuilder.Entity("SimpleAnki.Models.Example", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CardId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CardId");
+
+                    b.ToTable("Example");
+                });
+
             modelBuilder.Entity("SimpleAnki.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -107,6 +127,22 @@ namespace SimpleAnki.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SimpleAnki.Models.Example", b =>
+                {
+                    b.HasOne("SimpleAnki.Models.Card", "Card")
+                        .WithMany("Examples")
+                        .HasForeignKey("CardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Card");
+                });
+
+            modelBuilder.Entity("SimpleAnki.Models.Card", b =>
+                {
+                    b.Navigation("Examples");
                 });
 
             modelBuilder.Entity("SimpleAnki.Models.Deck", b =>

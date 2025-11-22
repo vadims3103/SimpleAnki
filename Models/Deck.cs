@@ -14,7 +14,6 @@ namespace SimpleAnki.Models
 
         public string? Description {get; set;}
         
-        // Navigation
         public List<Card> Cards {get; set;} = new();
 
         public Guid UserId { get; set; }

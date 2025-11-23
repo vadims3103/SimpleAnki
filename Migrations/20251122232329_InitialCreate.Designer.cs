@@ -11,7 +11,7 @@ using SimpleAnki.Data;
 namespace SimpleAnki.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251122222749_InitialCreate")]
+    [Migration("20251122232329_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

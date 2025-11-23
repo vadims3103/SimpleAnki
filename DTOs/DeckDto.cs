@@ -6,5 +6,6 @@ namespace SimpleAnki.DTOs
         public string Title { get; set; } = null!;
         public string? Description { get; set; }
         public int CardsCount { get; set; }
+        public List<CardDto> Cards { get; set; } = new();
     }
 }

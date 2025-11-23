@@ -30,9 +30,24 @@ public class DecksController : ControllerBase
                 Id = d.Id,
                 Title = d.Title,
                 Description = d.Description,
-                CardsCount = d.Cards.Count
+                CardsCount = d.Cards.Count,
             })
             .ToListAsync();
+
+            var deckIds = decks.Select(d => d.Id).ToList();
+
+            var cards = await _db.Cards
+                .Where(c => deckIds.Contains(c.DeckId))
+                .Select(c => new CardDto
+                {
+                    Id = c.Id,
+                    Front = c.Front,
+                    Back = c.Back,
+                    Order = c.Order,
+                    DeckId = c.DeckId,
+                    DeckTitle = c.Deck!.Title
+                })
+                .ToListAsync();
 
         return Ok(decks);
     }
@@ -51,9 +66,27 @@ public class DecksController : ControllerBase
                 Id = d.Id,
                 Title = d.Title,
                 Description = d.Description,
-                CardsCount = d.Cards.Count
+                CardsCount = d.Cards.Count,
             })
             .FirstOrDefaultAsync();
+        
+        if (deck == null)
+            return NotFound();
+        
+        var cards = await _db.Cards
+            .Where(c => c.DeckId == deck.Id)
+            .Select(c => new CardDto
+            {
+                Id = c.Id,
+                Front = c.Front,
+                Back = c.Back,
+                Order = c.Order,
+                DeckId = c.DeckId,
+                DeckTitle = deck.Title
+            })
+            .ToListAsync();
+
+        deck.Cards = cards;
 
         return deck == null ? NotFound() : Ok(deck);
     }
